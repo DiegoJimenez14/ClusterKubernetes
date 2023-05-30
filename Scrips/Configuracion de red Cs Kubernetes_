@@ -1,0 +1,545 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Amazon EKS Sample VPC - Public subnets only",
+    "Parameters": {
+        "VpcBlock": {
+            "Type": "String",
+            "Default": "192.168.0.0/16",
+            "Description": "The CIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
+        },
+        "Subnet01Block": {
+            "Type": "String",
+            "Default": "192.168.64.0/18",
+            "Description": "CidrBlock for subnet 01 within the VPC"
+        },
+        "Subnet02Block": {
+            "Type": "String",
+            "Default": "192.168.128.0/18",
+            "Description": "CidrBlock for subnet 02 within the VPC"
+        },
+        "Subnet03Block": {
+            "Type": "String",
+            "Default": "192.168.192.0/18",
+            "Description": "CidrBlock for subnet 03 within the VPC. This is used only if the region has more than 2 AZs."
+        }
+    },
+    "Metadata": {
+        "AWS::CloudFormation::Interface": {
+            "ParameterGroups": [
+                {
+                    "Label": {
+                        "default": "Worker Network Configuration"
+                    },
+                    "Parameters": [
+                        "VpcBlock",
+                        "Subnet01Block",
+                        "Subnet02Block",
+                        "Subnet03Block"
+                    ]
+                }
+            ]
+        },
+        "AWS::CloudFormation::Designer": {
+            "4426d230-4185-462d-8919-3d1290576606": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 660,
+                    "y": 90
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "52890cc4-6225-4902-ab07-04d27bac69ae": {
+                "size": {
+                    "width": 240,
+                    "height": 240
+                },
+                "position": {
+                    "x": 360,
+                    "y": 90
+                },
+                "z": 1,
+                "embeds": [
+                    "88df6286-8e69-4f6d-8276-9c74dbd701a7"
+                ]
+            },
+            "88df6286-8e69-4f6d-8276-9c74dbd701a7": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 390,
+                    "y": 150
+                },
+                "z": 2,
+                "parent": "52890cc4-6225-4902-ab07-04d27bac69ae",
+                "embeds": [],
+                "iscontainedinside": [
+                    "52890cc4-6225-4902-ab07-04d27bac69ae"
+                ]
+            },
+            "866324cf-95c9-40f4-8566-f8a1d9fdfb0d": {
+                "size": {
+                    "width": 150,
+                    "height": 150
+                },
+                "position": {
+                    "x": 480,
+                    "y": 390
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "10fc6b90-e145-4fa1-8b33-78ad53cde3c2": {
+                "size": {
+                    "width": 150,
+                    "height": 150
+                },
+                "position": {
+                    "x": 270,
+                    "y": 390
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "5e25c5fc-da4f-4b5c-8e4a-a20dd610f22d": {
+                "size": {
+                    "width": 150,
+                    "height": 150
+                },
+                "position": {
+                    "x": 60,
+                    "y": 390
+                },
+                "z": 1,
+                "embeds": []
+            },
+            "6a64b959-a1f9-4d81-876d-30468d51c188": {
+                "size": {
+                    "width": 240,
+                    "height": 240
+                },
+                "position": {
+                    "x": 70,
+                    "y": 110
+                },
+                "z": 1,
+                "embeds": [
+                    "af6ba16e-6b35-4cc6-b12d-c54a15c62104"
+                ]
+            },
+            "007c3ca7-1fc4-4255-95af-66995677a8ee": {
+                "source": {
+                    "id": "52890cc4-6225-4902-ab07-04d27bac69ae"
+                },
+                "target": {
+                    "id": "4426d230-4185-462d-8919-3d1290576606"
+                }
+            },
+            "af6ba16e-6b35-4cc6-b12d-c54a15c62104": {
+                "size": {
+                    "width": 60,
+                    "height": 60
+                },
+                "position": {
+                    "x": 100,
+                    "y": 170
+                },
+                "z": 2,
+                "parent": "6a64b959-a1f9-4d81-876d-30468d51c188",
+                "embeds": [],
+                "isassociatedwith": [
+                    "4426d230-4185-462d-8919-3d1290576606"
+                ],
+                "iscontainedinside": [
+                    "6a64b959-a1f9-4d81-876d-30468d51c188"
+                ],
+                "dependson": [
+                    "007c3ca7-1fc4-4255-95af-66995677a8ee"
+                ]
+            }
+        }
+    },
+    "Conditions": {
+        "Has2Azs": {
+            "Fn::Or": [
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "ap-south-1"
+                    ]
+                },
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "ap-northeast-2"
+                    ]
+                },
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "ca-central-1"
+                    ]
+                },
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "cn-north-1"
+                    ]
+                },
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "sa-east-1"
+                    ]
+                },
+                {
+                    "Fn::Equals": [
+                        {
+                            "Ref": "AWS::Region"
+                        },
+                        "us-west-1"
+                    ]
+                }
+            ]
+        },
+        "HasMoreThan2Azs": {
+            "Fn::Not": [
+                {
+                    "Condition": "Has2Azs"
+                }
+            ]
+        }
+    },
+    "Resources": {
+        "VPC": {
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+                "CidrBlock": {
+                    "Ref": "VpcBlock"
+                },
+                "EnableDnsSupport": true,
+                "EnableDnsHostnames": true,
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Sub": "${AWS::StackName}-VPC"
+                        }
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "52890cc4-6225-4902-ab07-04d27bac69ae"
+                }
+            }
+        },
+        "InternetGateway": {
+            "Type": "AWS::EC2::InternetGateway",
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "4426d230-4185-462d-8919-3d1290576606"
+                }
+            }
+        },
+        "VPCGatewayAttachment": {
+            "Type": "AWS::EC2::VPCGatewayAttachment",
+            "Properties": {
+                "InternetGatewayId": {
+                    "Ref": "InternetGateway"
+                },
+                "VpcId": {
+                    "Ref": "VPC"
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "007c3ca7-1fc4-4255-95af-66995677a8ee"
+                }
+            }
+        },
+        "RouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "Public Subnets"
+                    },
+                    {
+                        "Key": "Network",
+                        "Value": "Public"
+                    }
+                ]
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "6a64b959-a1f9-4d81-876d-30468d51c188"
+                }
+            }
+        },
+        "Route": {
+            "DependsOn": "VPCGatewayAttachment",
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "RouteTable"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "GatewayId": {
+                    "Ref": "InternetGateway"
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "af6ba16e-6b35-4cc6-b12d-c54a15c62104"
+                }
+            }
+        },
+        "Subnet01": {
+            "Type": "AWS::EC2::Subnet",
+            "Metadata": {
+                "Comment": "Subnet 01",
+                "AWS::CloudFormation::Designer": {
+                    "id": "5e25c5fc-da4f-4b5c-8e4a-a20dd610f22d"
+                }
+            },
+            "Properties": {
+                "MapPublicIpOnLaunch": true,
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        "0",
+                        {
+                            "Fn::GetAZs": {
+                                "Ref": "AWS::Region"
+                            }
+                        }
+                    ]
+                },
+                "CidrBlock": {
+                    "Ref": "Subnet01Block"
+                },
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Sub": "${AWS::StackName}-Subnet01"
+                        }
+                    },
+                    {
+                        "Key": "kubernetes.io/role/elb",
+                        "Value": 1
+                    }
+                ]
+            }
+        },
+        "Subnet02": {
+            "Type": "AWS::EC2::Subnet",
+            "Metadata": {
+                "Comment": "Subnet 02",
+                "AWS::CloudFormation::Designer": {
+                    "id": "10fc6b90-e145-4fa1-8b33-78ad53cde3c2"
+                }
+            },
+            "Properties": {
+                "MapPublicIpOnLaunch": true,
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        "1",
+                        {
+                            "Fn::GetAZs": {
+                                "Ref": "AWS::Region"
+                            }
+                        }
+                    ]
+                },
+                "CidrBlock": {
+                    "Ref": "Subnet02Block"
+                },
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Sub": "${AWS::StackName}-Subnet02"
+                        }
+                    },
+                    {
+                        "Key": "kubernetes.io/role/elb",
+                        "Value": 1
+                    }
+                ]
+            }
+        },
+        "Subnet03": {
+            "Condition": "HasMoreThan2Azs",
+            "Type": "AWS::EC2::Subnet",
+            "Metadata": {
+                "Comment": "Subnet 03",
+                "AWS::CloudFormation::Designer": {
+                    "id": "866324cf-95c9-40f4-8566-f8a1d9fdfb0d"
+                }
+            },
+            "Properties": {
+                "MapPublicIpOnLaunch": true,
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        "2",
+                        {
+                            "Fn::GetAZs": {
+                                "Ref": "AWS::Region"
+                            }
+                        }
+                    ]
+                },
+                "CidrBlock": {
+                    "Ref": "Subnet03Block"
+                },
+                "VpcId": {
+                    "Ref": "VPC"
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Sub": "${AWS::StackName}-Subnet03"
+                        }
+                    },
+                    {
+                        "Key": "kubernetes.io/role/elb",
+                        "Value": 1
+                    }
+                ]
+            }
+        },
+        "Subnet01RouteTableAssociation": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "Subnet01"
+                },
+                "RouteTableId": {
+                    "Ref": "RouteTable"
+                }
+            }
+        },
+        "Subnet02RouteTableAssociation": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "Subnet02"
+                },
+                "RouteTableId": {
+                    "Ref": "RouteTable"
+                }
+            }
+        },
+        "Subnet03RouteTableAssociation": {
+            "Condition": "HasMoreThan2Azs",
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "Subnet03"
+                },
+                "RouteTableId": {
+                    "Ref": "RouteTable"
+                }
+            }
+        },
+        "ControlPlaneSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Cluster communication with worker nodes",
+                "VpcId": {
+                    "Ref": "VPC"
+                }
+            },
+            "Metadata": {
+                "AWS::CloudFormation::Designer": {
+                    "id": "88df6286-8e69-4f6d-8276-9c74dbd701a7"
+                }
+            }
+        }
+    },
+    "Outputs": {
+        "SubnetIds": {
+            "Description": "All subnets in the VPC",
+            "Value": {
+                "Fn::If": [
+                    "HasMoreThan2Azs",
+                    {
+                        "Fn::Join": [
+                            ",",
+                            [
+                                {
+                                    "Ref": "Subnet01"
+                                },
+                                {
+                                    "Ref": "Subnet02"
+                                },
+                                {
+                                    "Ref": "Subnet03"
+                                }
+                            ]
+                        ]
+                    },
+                    {
+                        "Fn::Join": [
+                            ",",
+                            [
+                                {
+                                    "Ref": "Subnet01"
+                                },
+                                {
+                                    "Ref": "Subnet02"
+                                }
+                            ]
+                        ]
+                    }
+                ]
+            }
+        },
+        "SecurityGroups": {
+            "Description": "Security group for the cluster control plane communication with worker nodes",
+            "Value": {
+                "Fn::Join": [
+                    ",",
+                    [
+                        {
+                            "Ref": "ControlPlaneSecurityGroup"
+                        }
+                    ]
+                ]
+            }
+        },
+        "VpcId": {
+            "Description": "The VPC Id",
+            "Value": {
+                "Ref": "VPC"
+            }
+        }
+    }
+}
