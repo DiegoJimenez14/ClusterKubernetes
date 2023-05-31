@@ -1,30 +1,7 @@
 # ClusterKubernetes
 
 ![Diagram](https://github.com/DiegoJimenez14/ClusterKubernetes/assets/115049957/05d6a7e6-ec58-4dec-acf9-14c946788f7c)
-## Paramteros 
-"Parameters": {
-        "VpcBlock": {
-            "Type": "String",
-            "Default": "192.168.0.0/16",
-            "Description": "The CIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
-        },
-        "Subnet01Block": {
-            "Type": "String",
-            "Default": "192.168.64.0/18",
-            "Description": "CidrBlock for subnet 01 within the VPC"
-        },
-        "Subnet02Block": {
-            "Type": "String",
-            "Default": "192.168.128.0/18",
-            "Description": "CidrBlock for subnet 02 within the VPC"
-        },
-        "Subnet03Block": {
-            "Type": "String",
-            "Default": "192.168.192.0/18",
-            "Description": "CidrBlock for subnet 03 within the VPC. This is used only if the region has more than 2 AZs."
-        }
-    }
-}
+
 
         "HasMoreThan2Azs": {
             "Fn::Not": [
